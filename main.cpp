@@ -95,48 +95,7 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     std::vector<unsigned int> vertices;
-
-    const int GRID_SIZE = 18;
-    int lines = 0;
-
-    // vertical lines
-    for (int i = GRID_SIZE; i < SCREEN_HEIGHT; i += GRID_SIZE)
-    {
-        // first point of line
-        vertices.push_back(0); // x
-        vertices.push_back(i); // y
-        vertices.push_back(1); // z
-
-        // second point of line
-        vertices.push_back(SCREEN_WIDTH); // x
-        vertices.push_back(i); // y
-        vertices.push_back(1); // z
-
-        lines++;
-    }
-
-    // horizontal lines
-    for (int i = GRID_SIZE; i < SCREEN_WIDTH; i += GRID_SIZE)
-    {
-        // first point of line
-        vertices.push_back(i); // x
-        vertices.push_back(0); // y
-        vertices.push_back(1); // z
-
-        // second point of line
-        vertices.push_back(i); // x
-        vertices.push_back(SCREEN_HEIGHT); // y
-        vertices.push_back(1); // z
-
-        lines++;
-    }
-
     std::vector<unsigned int> indices;
-
-    for (int i = 0; i < lines * 2; i++)
-    {
-        indices.push_back(i);
-    }
 
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -171,8 +130,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw our first triangle
-        glBindVertexArray(VAO);
-        glDrawElements(GL_LINES, lines * 2, GL_UNSIGNED_INT, nullptr);
+//        glBindVertexArray(VAO);
+//        glDrawElements(GL_LINES, lines * 2, GL_UNSIGNED_INT, nullptr);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
