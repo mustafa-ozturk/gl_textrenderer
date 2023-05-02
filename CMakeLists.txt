@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 include_directories(vendor)
 
 add_executable(${PROJECT_NAME}
+        vendor/stb_image/stb_image.cpp
         main.cpp
         )
 
