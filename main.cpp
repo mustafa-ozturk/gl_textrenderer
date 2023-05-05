@@ -17,7 +17,7 @@ using namespace gl;
 const unsigned int SCREEN_WIDTH = 500;
 const unsigned int SCREEN_HEIGHT = 500;
 
-const char *vertexShaderSource = R"(
+const char *charVertexShader = R"(
     #version 330 core
     layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
     out vec2 TexCoords;
@@ -31,7 +31,7 @@ const char *vertexShaderSource = R"(
     }
 )";
 
-const char *fragmentShaderSource = R"(
+const char *charFragmentShader = R"(
     #version 330 core
     in vec2 TexCoords;
     out vec4 color;
@@ -46,9 +46,31 @@ const char *fragmentShaderSource = R"(
     }
 )";
 
+const char *lineVertexShader = R"(
+    #version 330 core
+    layout (location = 0) in vec2 vertex;
+
+    uniform mat4 projection;
+
+    void main()
+    {
+        gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
+    }
+)";
+
+const char *lineFragmentShader = R"(
+    #version 330 core
+
+    out vec4 FragColor;
+
+    void main()
+    {
+        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    }
+)";
+
 unsigned int vertexShader;
 unsigned int fragmentShader;
-unsigned int shaderProgram;
 unsigned int VBO_chars, VAO_chars;
 
 
@@ -60,11 +82,11 @@ struct Character {
 };
 std::map<char, Character> Characters;
 
-void create_shaders()
+unsigned int create_shaders(const char* vertex_source, const char* fragment_source)
 {
     // vertex shader
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+    glShaderSource(vertexShader, 1, &vertex_source, nullptr);
     glCompileShader(vertexShader);
     int success;
     char infoLog[512];
@@ -76,7 +98,7 @@ void create_shaders()
     }
     // fragment shader
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+    glShaderSource(fragmentShader, 1, &fragment_source, nullptr);
     glCompileShader(fragmentShader);
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success)
@@ -86,7 +108,7 @@ void create_shaders()
     }
 
     // link shaders
-    shaderProgram = glCreateProgram();
+    unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
@@ -98,9 +120,11 @@ void create_shaders()
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+    return shaderProgram;
 }
 
-void RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
+void RenderText(unsigned int shaderProgram, std::string text, float x, float y, float scale, glm::vec3 color)
 {
     // activate corresponding render state
     glUseProgram(shaderProgram);
@@ -229,7 +253,6 @@ int main()
 
     glbinding::initialize(glfwGetProcAddress);
 
-    create_shaders();
 
     // enable blending
     glEnable(GL_BLEND);
@@ -251,11 +274,16 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    unsigned int charShaderProgram = create_shaders(charVertexShader, charFragmentShader);
+    unsigned int lineShaderProgram = create_shaders(lineVertexShader, lineFragmentShader);
+
     // projection
     {
         glm::mat4 projection = glm::ortho(0.0f, (float) SCREEN_WIDTH, 0.0f, (float) SCREEN_HEIGHT);
-        glUseProgram(shaderProgram);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUseProgram(charShaderProgram);
+        glUniformMatrix4fv(glGetUniformLocation(charShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUseProgram(lineShaderProgram);
+        glUniformMatrix4fv(glGetUniformLocation(lineShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     }
 
     std::vector<unsigned int> vertices;
@@ -322,7 +350,7 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    Character ch = Characters['x'];
+    Character ch = Characters['g'];
     std::cout << "bearing X: " <<  ch.Bearing.x << std::endl;
     std::cout << "bearing Y: " << ch.Bearing.y << std::endl;
     std::cout << "size.y: : " << ch.Size.y << std::endl;
@@ -334,6 +362,7 @@ int main()
 
         // render lines
         {
+            glUseProgram(lineShaderProgram);
             glBindVertexArray(VAO_lines);
             glBindBuffer(GL_ARRAY_BUFFER, VBO_lines);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_lines);
@@ -344,10 +373,10 @@ int main()
             glBindVertexArray(0);
         }
 
-//        RenderText("x", 100.0f, 100.0f, 1.0f, glm::vec3());
 
         // render char
         {
+            glUseProgram(charShaderProgram);
             glActiveTexture(GL_TEXTURE0);
             glBindVertexArray(VAO_chars);
 
@@ -383,12 +412,8 @@ int main()
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
-//            glBindTexture(GL_TEXTURE_2D, 0); FIXME: causes lines to disapear
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
-
-
-
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
