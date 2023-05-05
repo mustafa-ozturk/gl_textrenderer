@@ -49,7 +49,7 @@ const char *fragmentShaderSource = R"(
 unsigned int vertexShader;
 unsigned int fragmentShader;
 unsigned int shaderProgram;
-unsigned int VBO, VAO;
+unsigned int VBO_chars, VAO_chars;
 
 
 struct Character {
@@ -106,7 +106,7 @@ void RenderText(std::string text, float x, float y, float scale, glm::vec3 color
     glUseProgram(shaderProgram);
 //    glUniform3f(glGetUniformLocation(shaderProgram, "textColor"), color.x, color.y, color.z);
     glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO_chars);
 
     // iterate through all characters
     std::string::const_iterator c;
@@ -132,7 +132,7 @@ void RenderText(std::string text, float x, float y, float scale, glm::vec3 color
         // render glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
         // update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
         // be sure to use glBufferSubData and not glBufferData
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
@@ -146,36 +146,13 @@ void RenderText(std::string text, float x, float y, float scale, glm::vec3 color
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
-
-
-int main()
+void load_ascii_characters()
 {
-    if (!glfwInit()) return -1;
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "gl_textrenderer", nullptr, nullptr);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    glbinding::initialize(glfwGetProcAddress);
-
-    create_shaders();
-
-    // enable blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
     {
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-        return -1;
+        return;
     }
 
     // face == font
@@ -183,10 +160,9 @@ int main()
     if (FT_New_Face(ft, "assets/Ubuntu-R.ttf", 0, &face))
     {
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-        return -1;
+        return;
     }
 
-    // set font size
     FT_Set_Pixel_Sizes(face, 0, 50);
 
     // disable byte-alignment restriction
@@ -235,16 +211,39 @@ int main()
     // destroy FreeType once we're finished
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
+}
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+int main()
+{
+    if (!glfwInit()) return -1;
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "gl_textrenderer", nullptr, nullptr);
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glbinding::initialize(glfwGetProcAddress);
 
-    // reserve enough memory, later we will update the VBO's memory when rendering characters
+    create_shaders();
+
+    // enable blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    load_ascii_characters();
+
+    glGenVertexArrays(1, &VAO_chars);
+    glGenBuffers(1, &VBO_chars);
+    glBindVertexArray(VAO_chars);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+
+    // reserve memory, later we will update the VBO's memory when rendering characters
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
-    std::cout << "reserved: " << sizeof(float) * 6 * 4 << " bytes of memory in vertex buffer: " << VBO << std::endl;
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
@@ -252,9 +251,12 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glm::mat4 projection = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT);
-    glUseProgram(shaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    // projection
+    {
+        glm::mat4 projection = glm::ortho(0.0f, (float) SCREEN_WIDTH, 0.0f, (float) SCREEN_HEIGHT);
+        glUseProgram(shaderProgram);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    }
 
     std::vector<unsigned int> vertices;
 
@@ -295,6 +297,7 @@ int main()
 
     std::vector<unsigned int> indices;
 
+    indices.reserve(lines * 2);
     for (int i = 0; i < lines * 2; i++)
     {
         indices.push_back(i);
@@ -316,6 +319,7 @@ int main()
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     Character ch = Characters['x'];
@@ -328,49 +332,62 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-//        RenderText("T", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-        glActiveTexture(GL_TEXTURE0);
-        glBindVertexArray(VAO);
+        // render lines
+        {
+            glBindVertexArray(VAO_lines);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_lines);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_lines);
+            glDrawElements(GL_LINES, lines * 2, GL_UNSIGNED_INT, nullptr);
 
-        float x = 100.0f;
-        float y = 100.0f;
-        float scale = 1.0f;
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+        }
 
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+//        RenderText("x", 100.0f, 100.0f, 1.0f, glm::vec3());
 
+        // render char
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindVertexArray(VAO_chars);
 
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
-        // update VBO for each character
-        float vertices[6][4] = { // x,y,tx,ty
-                // first triangle
-                { xpos,     ypos + h,   0.0f, 0.0f }, // A
-                { xpos,     ypos,       0.0f, 1.0f }, // B
-                { xpos + w, ypos,       1.0f, 1.0f }, // C
+            float x = 100.0f;
+            float y = 100.0f;
+            float scale = 1.0f;
 
-                // second triangle
-                { xpos,     ypos + h,   0.0f, 0.0f },
-                { xpos + w, ypos,       1.0f, 1.0f },
-                { xpos + w, ypos + h,   1.0f, 0.0f }
-        };
-
-        // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-        // update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        // be sure to use glBufferSubData and not glBufferData
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+            float xpos = x + ch.Bearing.x * scale;
+            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
 
-        // draw lines
-        glBindVertexArray(VAO_lines);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO_lines);
-        glDrawElements(GL_LINES, lines * 2, GL_UNSIGNED_INT, nullptr);
+            float w = ch.Size.x * scale;
+            float h = ch.Size.y * scale;
+            // update VBO for each character
+            float char_vertices[6][4] = { // x,y,tx,ty
+                    // first triangle
+                    {xpos,     ypos + h, 0.0f, 0.0f}, // A
+                    {xpos,     ypos,     0.0f, 1.0f}, // B
+                    {xpos + w, ypos,     1.0f, 1.0f}, // C
+
+                    // second triangle
+                    {xpos,     ypos + h, 0.0f, 0.0f},
+                    {xpos + w, ypos,     1.0f, 1.0f},
+                    {xpos + w, ypos + h, 1.0f, 0.0f}
+            };
+
+            glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(char_vertices), char_vertices);
+
+            // render quad
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+//            glBindTexture(GL_TEXTURE_2D, 0); FIXME: causes lines to disapear
+        }
+
+
+
 
 
         glfwSwapBuffers(window);
