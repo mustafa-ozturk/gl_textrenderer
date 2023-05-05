@@ -71,8 +71,6 @@ const char *lineFragmentShader = R"(
 
 unsigned int vertexShader;
 unsigned int fragmentShader;
-unsigned int VBO_chars, VAO_chars[2];
-
 
 struct Character {
     unsigned int TextureID;  // ID handle of the glyph texture
@@ -124,51 +122,51 @@ unsigned int create_shaders(const char* vertex_source, const char* fragment_sour
     return shaderProgram;
 }
 
-void RenderText(unsigned int shaderProgram, std::string text, float x, float y, float scale, glm::vec3 color)
-{
-    // activate corresponding render state
-    glUseProgram(shaderProgram);
+//void RenderText(unsigned int shaderProgram, std::string text, float x, float y, float scale, glm::vec3 color)
+//{
+//    // activate corresponding render state
+//    glUseProgram(shaderProgram);
 //    glUniform3f(glGetUniformLocation(shaderProgram, "textColor"), color.x, color.y, color.z);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO_chars[0]);
-
-    // iterate through all characters
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++)
-    {
-        Character ch = Characters[*c];
-
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
-        // update VBO for each character
-        float vertices[6][4] = {
-                { xpos,     ypos + h,   0.0f, 0.0f },
-                { xpos,     ypos,       0.0f, 1.0f },
-                { xpos + w, ypos,       1.0f, 1.0f },
-
-                { xpos,     ypos + h,   0.0f, 0.0f },
-                { xpos + w, ypos,       1.0f, 1.0f },
-                { xpos + w, ypos + h,   1.0f, 0.0f }
-        };
-        // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-        // update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-        // be sure to use glBufferSubData and not glBufferData
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindVertexArray(VAO_chars);
+//
+//    // iterate through all characters
+//    std::string::const_iterator c;
+//    for (c = text.begin(); c != text.end(); c++)
+//    {
+//        Character ch = Characters[*c];
+//
+//        float xpos = x + ch.Bearing.x * scale;
+//        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+//
+//        float w = ch.Size.x * scale;
+//        float h = ch.Size.y * scale;
+//        // update VBO for each character
+//        float vertices[6][4] = {
+//                { xpos,     ypos + h,   0.0f, 0.0f },
+//                { xpos,     ypos,       0.0f, 1.0f },
+//                { xpos + w, ypos,       1.0f, 1.0f },
+//
+//                { xpos,     ypos + h,   0.0f, 0.0f },
+//                { xpos + w, ypos,       1.0f, 1.0f },
+//                { xpos + w, ypos + h,   1.0f, 0.0f }
+//        };
+//        // render glyph texture over quad
+//        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+//        // update content of VBO memory
+//        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+//        // be sure to use glBufferSubData and not glBufferData
+//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+//
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        // render quad
+//        glDrawArrays(GL_TRIANGLES, 0, 6);
+//        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+//        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+//    }
+//    glBindVertexArray(0);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//}
 
 void load_ascii_characters()
 {
@@ -259,33 +257,6 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     load_ascii_characters();
-
-    {
-        glGenVertexArrays(1, &VAO_chars[0]);
-        glBindVertexArray(VAO_chars[0]);
-        glGenBuffers(1, &VBO_chars);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-        // reserve memory, later we will update the VBO's memory when rendering characters
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
-
-    {
-        glGenVertexArrays(1, &VAO_chars[1]);
-        glBindVertexArray(VAO_chars[1]);
-        glGenBuffers(1, &VBO_chars);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-        // reserve memory, later we will update the VBO's memory when rendering characters
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
-
 
     unsigned int charShaderProgram = create_shaders(charVertexShader, charFragmentShader);
     unsigned int lineShaderProgram = create_shaders(lineVertexShader, lineFragmentShader);
@@ -382,13 +353,28 @@ int main()
             glUseProgram(0);
         }
 
-        // render char
-        {
-            Character ch = Characters['h'];
-            glUseProgram(charShaderProgram);
-            glBindVertexArray(VAO_chars[0]);
+        float x = 100.0f;
 
-            float x = 100.0f;
+        std::string text = "hello world :p";
+        // render char
+        for (char c : text)
+        {
+            unsigned int VBO_chars, VAO_chars;
+
+            glGenVertexArrays(1, &VAO_chars);
+            glBindVertexArray(VAO_chars);
+            glGenBuffers(1, &VBO_chars);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+            // reserve memory, later we will update the VBO's memory when rendering characters
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+            Character ch = Characters[c];
+            glUseProgram(charShaderProgram);
+            glUniform3f(glGetUniformLocation(charShaderProgram, "textColor"), 1.0f, 1.0f, 1.0f);
+            glBindVertexArray(VAO_chars);
+
             float y = 100.0f;
             float scale = 1.0f;
 
@@ -418,6 +404,7 @@ int main()
 
             // render quad
             glDrawArrays(GL_TRIANGLES, 0, 6);
+            x += (ch.Advance >> 6);
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
@@ -425,48 +412,6 @@ int main()
             glUseProgram(0);
         }
 
-        // render char
-        {
-            Character ch = Characters['e'];
-            glUseProgram(charShaderProgram);
-            glBindVertexArray(VAO_chars[1]);
-
-            float x = 200.0f;
-            float y = 200.0f;
-            float scale = 1.0f;
-
-            float xpos = x + ch.Bearing.x * scale;
-            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-            std::cout << xpos << ", " << ypos << std::endl;
-
-            float w = ch.Size.x * scale;
-            float h = ch.Size.y * scale;
-            // update VBO for each character
-            float char_vertices[6][4] = { // x,y,tx,ty
-                    // first triangle
-                    {xpos,     ypos + h, 0.0f, 0.0f}, // A
-                    {xpos,     ypos,     0.0f, 1.0f}, // B
-                    {xpos + w, ypos,     1.0f, 1.0f}, // C
-
-                    // second triangle
-                    {xpos,     ypos + h, 0.0f, 0.0f},
-                    {xpos + w, ypos,     1.0f, 1.0f},
-                    {xpos + w, ypos + h, 1.0f, 0.0f}
-            };
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(char_vertices), char_vertices);
-
-            // render quad
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glUseProgram(0);
-        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
