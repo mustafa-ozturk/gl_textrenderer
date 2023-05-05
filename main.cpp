@@ -350,11 +350,6 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    Character ch = Characters['g'];
-    std::cout << "bearing X: " <<  ch.Bearing.x << std::endl;
-    std::cout << "bearing Y: " << ch.Bearing.y << std::endl;
-    std::cout << "size.y: : " << ch.Size.y << std::endl;
-
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -371,13 +366,13 @@ int main()
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
+            glUseProgram(0);
         }
-
 
         // render char
         {
+            Character ch = Characters['h'];
             glUseProgram(charShaderProgram);
-            glActiveTexture(GL_TEXTURE0);
             glBindVertexArray(VAO_chars);
 
             float x = 100.0f;
@@ -403,6 +398,7 @@ int main()
                     {xpos + w, ypos + h, 1.0f, 0.0f}
             };
 
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, ch.TextureID);
             glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(char_vertices), char_vertices);
@@ -413,6 +409,49 @@ int main()
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
             glBindTexture(GL_TEXTURE_2D, 0);
+            glUseProgram(0);
+        }
+
+        // render char
+        {
+            Character ch = Characters['e'];
+            glBindVertexArray(VAO_chars);
+
+            float x = 100.0f;
+            float y = 200.0f;
+            float scale = 1.0f;
+
+            float xpos = x + ch.Bearing.x * scale;
+            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+            std::cout << xpos << ", " << ypos << std::endl;
+
+            float w = ch.Size.x * scale;
+            float h = ch.Size.y * scale;
+            // update VBO for each character
+            float char_vertices[6][4] = { // x,y,tx,ty
+                    // first triangle
+                    {xpos,     ypos + h, 0.0f, 0.0f}, // A
+                    {xpos,     ypos,     0.0f, 1.0f}, // B
+                    {xpos + w, ypos,     1.0f, 1.0f}, // C
+
+                    // second triangle
+                    {xpos,     ypos + h, 0.0f, 0.0f},
+                    {xpos + w, ypos,     1.0f, 1.0f},
+                    {xpos + w, ypos + h, 1.0f, 0.0f}
+            };
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(char_vertices), char_vertices);
+
+            // render quad
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glUseProgram(0);
         }
 
         glfwSwapBuffers(window);
