@@ -71,7 +71,7 @@ const char *lineFragmentShader = R"(
 
 unsigned int vertexShader;
 unsigned int fragmentShader;
-unsigned int VBO_chars, VAO_chars;
+unsigned int VBO_chars, VAO_chars[2];
 
 
 struct Character {
@@ -130,7 +130,7 @@ void RenderText(unsigned int shaderProgram, std::string text, float x, float y, 
     glUseProgram(shaderProgram);
 //    glUniform3f(glGetUniformLocation(shaderProgram, "textColor"), color.x, color.y, color.z);
     glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO_chars);
+    glBindVertexArray(VAO_chars[0]);
 
     // iterate through all characters
     std::string::const_iterator c;
@@ -260,19 +260,32 @@ int main()
 
     load_ascii_characters();
 
-    glGenVertexArrays(1, &VAO_chars);
-    glGenBuffers(1, &VBO_chars);
-    glBindVertexArray(VAO_chars);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+    {
+        glGenVertexArrays(1, &VAO_chars[0]);
+        glBindVertexArray(VAO_chars[0]);
+        glGenBuffers(1, &VBO_chars);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+        // reserve memory, later we will update the VBO's memory when rendering characters
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
 
-    // reserve memory, later we will update the VBO's memory when rendering characters
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+    {
+        glGenVertexArrays(1, &VAO_chars[1]);
+        glBindVertexArray(VAO_chars[1]);
+        glGenBuffers(1, &VBO_chars);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+        // reserve memory, later we will update the VBO's memory when rendering characters
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 
     unsigned int charShaderProgram = create_shaders(charVertexShader, charFragmentShader);
     unsigned int lineShaderProgram = create_shaders(lineVertexShader, lineFragmentShader);
@@ -373,7 +386,7 @@ int main()
         {
             Character ch = Characters['h'];
             glUseProgram(charShaderProgram);
-            glBindVertexArray(VAO_chars);
+            glBindVertexArray(VAO_chars[0]);
 
             float x = 100.0f;
             float y = 100.0f;
@@ -415,9 +428,10 @@ int main()
         // render char
         {
             Character ch = Characters['e'];
-            glBindVertexArray(VAO_chars);
+            glUseProgram(charShaderProgram);
+            glBindVertexArray(VAO_chars[1]);
 
-            float x = 100.0f;
+            float x = 200.0f;
             float y = 200.0f;
             float scale = 1.0f;
 
