@@ -185,7 +185,7 @@ void load_ascii_characters()
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 50);
+    FT_Set_Pixel_Sizes(face, 0, 193);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -355,7 +355,7 @@ int main()
 
         float x = 100.0f;
 
-        std::string text = "hello world :p";
+        std::string text = "x";
         // render char
         for (char c : text)
         {
