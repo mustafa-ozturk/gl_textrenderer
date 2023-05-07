@@ -46,29 +46,6 @@ const char *charFragmentShader = R"(
     }
 )";
 
-const char *lineVertexShader = R"(
-    #version 330 core
-    layout (location = 0) in vec2 vertex;
-
-    uniform mat4 projection;
-
-    void main()
-    {
-        gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
-    }
-)";
-
-const char *lineFragmentShader = R"(
-    #version 330 core
-
-    out vec4 FragColor;
-
-    void main()
-    {
-        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    }
-)";
-
 unsigned int vertexShader;
 unsigned int fragmentShader;
 
@@ -259,99 +236,18 @@ int main()
     load_ascii_characters();
 
     unsigned int charShaderProgram = create_shaders(charVertexShader, charFragmentShader);
-    unsigned int lineShaderProgram = create_shaders(lineVertexShader, lineFragmentShader);
 
     // projection
     {
         glm::mat4 projection = glm::ortho(0.0f, (float) SCREEN_WIDTH, 0.0f, (float) SCREEN_HEIGHT);
         glUseProgram(charShaderProgram);
         glUniformMatrix4fv(glGetUniformLocation(charShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUseProgram(lineShaderProgram);
-        glUniformMatrix4fv(glGetUniformLocation(lineShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     }
-
-    std::vector<unsigned int> vertices;
-
-    const int GRID_SIZE = 100;
-    int lines = 0;
-
-    // vertical lines
-    for (int i = GRID_SIZE; i < SCREEN_HEIGHT; i += GRID_SIZE)
-    {
-        // first point of line
-        vertices.push_back(0); // x
-        vertices.push_back(i); // y
-        vertices.push_back(1); // z
-
-        // second point of line
-        vertices.push_back(SCREEN_WIDTH); // x
-        vertices.push_back(i); // y
-        vertices.push_back(1); // z
-
-        lines++;
-    }
-
-    // horizontal lines
-    for (int i = GRID_SIZE; i < SCREEN_WIDTH; i += GRID_SIZE)
-    {
-        // first point of line
-        vertices.push_back(i); // x
-        vertices.push_back(0); // y
-        vertices.push_back(1); // z
-
-        // second point of line
-        vertices.push_back(i); // x
-        vertices.push_back(SCREEN_HEIGHT); // y
-        vertices.push_back(1); // z
-
-        lines++;
-    }
-
-    std::vector<unsigned int> indices;
-
-    indices.reserve(lines * 2);
-    for (int i = 0; i < lines * 2; i++)
-    {
-        indices.push_back(i);
-    }
-
-    unsigned int VBO_lines, VAO_lines, EBO_lines;
-    glGenVertexArrays(1, &VAO_lines);
-    glGenBuffers(1, &VBO_lines);
-    glGenBuffers(1, &EBO_lines);
-    glBindVertexArray(VAO_lines);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_lines);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(unsigned int), vertices.data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_lines);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_UNSIGNED_INT, GL_FALSE, 3 * sizeof(unsigned int), (void*)nullptr);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        // render lines
-        {
-            glUseProgram(lineShaderProgram);
-            glBindVertexArray(VAO_lines);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_lines);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_lines);
-            glDrawElements(GL_LINES, lines * 2, GL_UNSIGNED_INT, nullptr);
-
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
-            glUseProgram(0);
-        }
 
         float x = 100.0f;
 
