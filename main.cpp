@@ -50,9 +50,12 @@ unsigned int vertexShader;
 unsigned int fragmentShader;
 
 struct Character {
-    unsigned int TextureID;  // ID handle of the glyph texture
-    glm::ivec2   Size;       // Size of glyph
+    unsigned int TextureID;  // opengl texture ID of the glyph
+    glm::ivec2   Size;       // Size of glyph (width and height of bitmap)
+    // bearing.x horizontal position relative to the origin
+    // bearing.y vertical position relative to the baseline
     glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
+    // horizontal distance in 1/64th pixels from the origin to the next origin
     unsigned int Advance;    // Offset to advance to next glyph
 };
 std::map<char, Character> Characters;
@@ -98,52 +101,6 @@ unsigned int create_shaders(const char* vertex_source, const char* fragment_sour
 
     return shaderProgram;
 }
-
-//void RenderText(unsigned int shaderProgram, std::string text, float x, float y, float scale, glm::vec3 color)
-//{
-//    // activate corresponding render state
-//    glUseProgram(shaderProgram);
-//    glUniform3f(glGetUniformLocation(shaderProgram, "textColor"), color.x, color.y, color.z);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindVertexArray(VAO_chars);
-//
-//    // iterate through all characters
-//    std::string::const_iterator c;
-//    for (c = text.begin(); c != text.end(); c++)
-//    {
-//        Character ch = Characters[*c];
-//
-//        float xpos = x + ch.Bearing.x * scale;
-//        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-//
-//        float w = ch.Size.x * scale;
-//        float h = ch.Size.y * scale;
-//        // update VBO for each character
-//        float vertices[6][4] = {
-//                { xpos,     ypos + h,   0.0f, 0.0f },
-//                { xpos,     ypos,       0.0f, 1.0f },
-//                { xpos + w, ypos,       1.0f, 1.0f },
-//
-//                { xpos,     ypos + h,   0.0f, 0.0f },
-//                { xpos + w, ypos,       1.0f, 1.0f },
-//                { xpos + w, ypos + h,   1.0f, 0.0f }
-//        };
-//        // render glyph texture over quad
-//        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-//        // update content of VBO memory
-//        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-//        // be sure to use glBufferSubData and not glBufferData
-//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-//
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//        // render quad
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
-//        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-//        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-//    }
-//    glBindVertexArray(0);
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//}
 
 void load_ascii_characters()
 {
@@ -289,9 +246,9 @@ int main()
                     {xpos + w, ypos,     1.0f, 1.0f}, // C
 
                     // second triangle
-                    {xpos,     ypos + h, 0.0f, 0.0f},
-                    {xpos + w, ypos,     1.0f, 1.0f},
-                    {xpos + w, ypos + h, 1.0f, 0.0f}
+                    {xpos,     ypos + h, 0.0f, 0.0f}, // A
+                    {xpos + w, ypos,     1.0f, 1.0f}, // C
+                    {xpos + w, ypos + h, 1.0f, 0.0f}  // D
             };
 
             glActiveTexture(GL_TEXTURE0);
