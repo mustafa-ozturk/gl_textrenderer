@@ -226,7 +226,7 @@ int main()
 
             Character ch = Characters[c];
             glUseProgram(charShaderProgram);
-            glUniform3f(glGetUniformLocation(charShaderProgram, "textColor"), 1.0f, 1.0f, 1.0f);
+            glUniform3f(glGetUniformLocation(charShaderProgram, "textColor"), 200/255.0, 60/255.0, 30/255.0);
             glBindVertexArray(VAO_chars);
 
             float y = 100.0f;
@@ -236,19 +236,19 @@ int main()
             float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
 
-            float w = ch.Size.x * scale;
-            float h = ch.Size.y * scale;
+            float width = ch.Size.x * scale;
+            float height = ch.Size.y * scale;
             // update VBO for each character
             float char_vertices[6][4] = { // x,y,tx,ty
                     // first triangle
-                    {xpos,     ypos + h, 0.0f, 0.0f}, // A
-                    {xpos,     ypos,     0.0f, 1.0f}, // B
-                    {xpos + w, ypos,     1.0f, 1.0f}, // C
+                    {xpos,     ypos + height,     0.0f, 0.0f}, // A
+                    {xpos, ypos,                  0.0f, 1.0f}, // B
+                    {xpos + width, ypos,          1.0f, 1.0f}, // C
 
                     // second triangle
-                    {xpos,     ypos + h, 0.0f, 0.0f}, // A
-                    {xpos + w, ypos,     1.0f, 1.0f}, // C
-                    {xpos + w, ypos + h, 1.0f, 0.0f}  // D
+                    {xpos,     ypos + height,     0.0f, 0.0f}, // A
+                    {xpos + width, ypos,          1.0f, 1.0f}, // C
+                    {xpos + width, ypos + height, 1.0f, 0.0f}  // D
             };
 
             glActiveTexture(GL_TEXTURE0);
