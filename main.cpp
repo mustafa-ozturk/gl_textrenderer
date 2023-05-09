@@ -212,24 +212,26 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         gridlines.draw();
 
-        std::string text = "x";
+        glDisable(GL_BLEND);
+        std::string text = "0000";
         int totalWidth = 0;
-        int count = 0;
         for (char c : text)
         {
             Character ch = Characters[c];
-            if (count == 0 || count == text.length() - 1)
+            if (c != *text.end())
+            {
+                totalWidth += ch.Size.x + (ch.Advance >> 6);
+            }
+            else
             {
                 totalWidth += ch.Size.x;
-            } else
-            {
-                totalWidth += ch.Size.x + ch.Bearing.x;
             }
-            count++;
         }
         std::cout << totalWidth << std::endl;
 
-        float x = ((SCREEN_WIDTH - totalWidth) / 2) - totalWidth / 2;
+        float x = (SCREEN_WIDTH / 2) - (totalWidth / 2);
+        std::cout << (SCREEN_WIDTH / 2) - (totalWidth / 2) << std::endl;
+
         float y = 0.0f;
         float scale = 1.0f;
 
@@ -252,7 +254,15 @@ int main()
             glUniform3f(glGetUniformLocation(charShaderProgram, "textColor"), 200/255.0, 60/255.0, 30/255.0);
             glBindVertexArray(VAO_chars);
 
-            float xpos = x + ch.Bearing.x * scale;
+            float xpos = x * scale;
+
+            // don't add bearingX for first character
+            if (c != *text.begin())
+            {
+                xpos = x + ch.Bearing.x * scale;
+            }
+
+
             float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
 
