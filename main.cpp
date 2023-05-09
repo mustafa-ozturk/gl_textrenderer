@@ -12,6 +12,8 @@
 #include <iostream>
 #include <map>
 
+#include "gl_gridlines/gl_gridlines.h"
+
 using namespace gl;
 
 const unsigned int SCREEN_WIDTH = 500;
@@ -119,7 +121,7 @@ void load_ascii_characters()
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 193);
+    FT_Set_Pixel_Sizes(face, 0, 50);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -202,15 +204,35 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(charShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     }
 
+    gl_gridlines gridlines(SCREEN_WIDTH, SCREEN_HEIGHT, 50, {1.0f, 0.5f, 0.2f, 0.1f});
+
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        float x = 100.0f;
+        gridlines.draw();
 
         std::string text = "x";
-        // render char
+        int totalWidth = 0;
+        int count = 0;
+        for (char c : text)
+        {
+            Character ch = Characters[c];
+            if (count == 0 || count == text.length() - 1)
+            {
+                totalWidth += ch.Size.x;
+            } else
+            {
+                totalWidth += ch.Size.x + ch.Bearing.x;
+            }
+            count++;
+        }
+        std::cout << totalWidth << std::endl;
+
+        float x = ((SCREEN_WIDTH - totalWidth) / 2) - totalWidth / 2;
+        float y = 0.0f;
+        float scale = 1.0f;
+
         for (char c : text)
         {
             unsigned int VBO_chars, VAO_chars;
@@ -225,12 +247,10 @@ int main()
             glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
             Character ch = Characters[c];
+
             glUseProgram(charShaderProgram);
             glUniform3f(glGetUniformLocation(charShaderProgram, "textColor"), 200/255.0, 60/255.0, 30/255.0);
             glBindVertexArray(VAO_chars);
-
-            float y = 100.0f;
-            float scale = 1.0f;
 
             float xpos = x + ch.Bearing.x * scale;
             float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
@@ -238,19 +258,25 @@ int main()
 
             float width = ch.Size.x * scale;
             float height = ch.Size.y * scale;
+            /*
+             * C      D ypos + height,
+             *
+             * A      B
+             *   xpos + width
+             * FREETYPE GLYPHS ARE REVERSED: 0,0  = top left
+             * */
             // update VBO for each character
             float char_vertices[6][4] = { // x,y,tx,ty
                     // first triangle
-                    {xpos,     ypos + height,     0.0f, 0.0f}, // A
-                    {xpos, ypos,                  0.0f, 1.0f}, // B
-                    {xpos + width, ypos,          1.0f, 1.0f}, // C
+                    {xpos,     ypos + height,     0.0f, 0.0f}, // C
+                    {xpos, ypos,                  0.0f, 1.0f}, // A
+                    {xpos + width, ypos,          1.0f, 1.0f}, // B
 
                     // second triangle
-                    {xpos,     ypos + height,     0.0f, 0.0f}, // A
-                    {xpos + width, ypos,          1.0f, 1.0f}, // C
+                    {xpos,     ypos + height,     0.0f, 0.0f}, // C
+                    {xpos + width, ypos,          1.0f, 1.0f}, // B
                     {xpos + width, ypos + height, 1.0f, 0.0f}  // D
             };
-
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, ch.TextureID);
             glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);

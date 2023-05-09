@@ -4,11 +4,12 @@ project(gl_textrenderer)
 set(CMAKE_CXX_STANDARD 23)
 
 include_directories(vendor)
+include_directories(include)
 include_directories(vendor/freetype-2.12.0/include)
 
 add_executable(${PROJECT_NAME}
         main.cpp
-        )
+        include/gl_gridlines/gl_gridlines.cpp)
 
 find_package ( glfw3 REQUIRED )
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw )
