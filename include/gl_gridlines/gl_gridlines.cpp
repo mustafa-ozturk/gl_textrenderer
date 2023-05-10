@@ -5,8 +5,6 @@ gl_gridlines::gl_gridlines(unsigned int screen_width, unsigned int screen_height
         : m_screen_width(screen_width), m_screen_height(screen_height),
           m_grid_size(grid_size), m_line_colors(line_colors)
 {
-    glEnable(GL_BLEND);
-
     const std::string vertex_shader_source = R"(
         #version 330 core
         layout (location = 0) in vec3 pos;
@@ -51,8 +49,9 @@ gl_gridlines::~gl_gridlines()
 
 void gl_gridlines::draw()
 {
-    glUseProgram(m_shader_program);
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glUseProgram(m_shader_program);
     glBindVertexArray(m_vao);
     glDrawElements(GL_LINES, m_lines * 2, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
