@@ -121,7 +121,7 @@ void load_ascii_characters()
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 50);
+    FT_Set_Pixel_Sizes(face, 429, 415);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -204,35 +204,37 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(charShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     }
 
-    gl_gridlines gridlines(SCREEN_WIDTH, SCREEN_HEIGHT, 50, {1.0f, 0.5f, 0.2f, 0.1f});
+    gl_gridlines gridlines(SCREEN_WIDTH, SCREEN_HEIGHT, 50, {1.0f, 1.0f, 1.0f, 0.1f});
 
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        gridlines.draw();
 
-        glDisable(GL_BLEND);
-        std::string text = "0000";
-        int totalWidth = 0;
+//        glDisable(GL_BLEND);
+        std::string text = "0";
+        int textWidth = 0;
+        int textHeight = 0;
         for (char c : text)
         {
             Character ch = Characters[c];
-            if (c != *text.end())
+            textWidth += ch.Size.x;
+            // pick the biggest height in the text
+            if (ch.Size.y > textHeight)
             {
-                totalWidth += ch.Size.x + (ch.Advance >> 6);
-            }
-            else
-            {
-                totalWidth += ch.Size.x;
+                textHeight = ch.Size.y;
             }
         }
-        std::cout << totalWidth << std::endl;
 
-        float x = (SCREEN_WIDTH / 2) - (totalWidth / 2);
-        std::cout << (SCREEN_WIDTH / 2) - (totalWidth / 2) << std::endl;
+        float x = (SCREEN_WIDTH / 2) - (textWidth / 2);
+        std::cout << "SCREEN_WIDTH / 2: " << (SCREEN_WIDTH / 2) << std::endl;
+        std::cout << "textWidth: " << textWidth << std::endl;
+        std::cout << "textHeight: " << textHeight << std::endl;
 
-        float y = 0.0f;
+
+        float y = (SCREEN_HEIGHT / 2) - (textHeight / 2);
+        std::cout << "SCREEN_HEIGHT / 2: " << (SCREEN_HEIGHT / 2) << std::endl;
+
         float scale = 1.0f;
 
         for (char c : text)
@@ -255,15 +257,13 @@ int main()
             glBindVertexArray(VAO_chars);
 
             float xpos = x * scale;
-
             // don't add bearingX for first character
             if (c != *text.begin())
             {
                 xpos = x + ch.Bearing.x * scale;
             }
-
-
-            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+//            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+            float ypos = y * scale;
 
 
             float width = ch.Size.x * scale;
@@ -302,6 +302,7 @@ int main()
             glUseProgram(0);
         }
 
+        gridlines.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
