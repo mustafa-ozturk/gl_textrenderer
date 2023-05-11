@@ -121,7 +121,7 @@ void load_ascii_characters()
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 50);
+    FT_Set_Pixel_Sizes(face, 0, 200);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -212,7 +212,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
 //        glDisable(GL_BLEND);
-        std::string text = "AAAAAAA";
+        std::string text = "Aa";
         int textWidth = 0;
         int textHeight = 0;
         int count = 0;
