@@ -212,7 +212,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
 //        glDisable(GL_BLEND);
-        std::string text = "hello world";
+        std::string text = "postgres";
         int textWidth = 0;
         int textHeight = 0;
         int count = 0;
@@ -252,14 +252,8 @@ int main()
             glUniform3f(glGetUniformLocation(charShaderProgram, "textColor"), 200/255.0, 60/255.0, 30/255.0);
             glBindVertexArray(VAO_chars);
 
-            float xpos = x * scale;
-
-            if (charCount != 0)
-            {
-                xpos = x + ch.Bearing.x * scale;
-            }
-//            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-            float ypos = y * scale;
+            float xpos = xpos = x + ch.Bearing.x * scale;
+            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
 
             float width = ch.Size.x * scale;
