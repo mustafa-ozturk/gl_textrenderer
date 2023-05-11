@@ -121,7 +121,7 @@ void load_ascii_characters()
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 200);
+    FT_Set_Pixel_Sizes(face, 0, 50);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -212,23 +212,19 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
 //        glDisable(GL_BLEND);
-        std::string text = "Aa";
+        std::string text = "hello world";
         int textWidth = 0;
         int textHeight = 0;
         int count = 0;
         for (char c : text)
         {
             Character ch = Characters[c];
-            textWidth += ch.Size.x;
             // pick the biggest height in the text
             if (ch.Size.y > textHeight)
             {
                 textHeight = ch.Size.y;
             }
-            if (count != text.length())
-            {
-                textWidth += (ch.Advance >> 6) - (ch.Size.x + ch.Bearing.x);
-            }
+            textWidth += ch.Advance >> 6;
             count++;
         }
 
@@ -236,6 +232,7 @@ int main()
         float y = (SCREEN_HEIGHT / 2) - (textHeight / 2);
         float scale = 1.0f;
 
+        int charCount = 0;
         for (char c : text)
         {
             unsigned int VBO_chars, VAO_chars;
@@ -256,8 +253,8 @@ int main()
             glBindVertexArray(VAO_chars);
 
             float xpos = x * scale;
-            // don't add bearingX for first character
-            if (c != *text.begin())
+
+            if (charCount != 0)
             {
                 xpos = x + ch.Bearing.x * scale;
             }
@@ -299,6 +296,8 @@ int main()
             glBindVertexArray(0);
             glBindTexture(GL_TEXTURE_2D, 0);
             glUseProgram(0);
+
+            charCount++;
         }
 
         gridlines.draw();
