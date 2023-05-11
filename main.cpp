@@ -121,7 +121,7 @@ void load_ascii_characters()
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 429, 415);
+    FT_Set_Pixel_Sizes(face, 0, 50);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -212,9 +212,10 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
 //        glDisable(GL_BLEND);
-        std::string text = "0";
+        std::string text = "AAAAAAA";
         int textWidth = 0;
         int textHeight = 0;
+        int count = 0;
         for (char c : text)
         {
             Character ch = Characters[c];
@@ -224,17 +225,15 @@ int main()
             {
                 textHeight = ch.Size.y;
             }
+            if (count != text.length())
+            {
+                textWidth += (ch.Advance >> 6) - (ch.Size.x + ch.Bearing.x);
+            }
+            count++;
         }
 
         float x = (SCREEN_WIDTH / 2) - (textWidth / 2);
-        std::cout << "SCREEN_WIDTH / 2: " << (SCREEN_WIDTH / 2) << std::endl;
-        std::cout << "textWidth: " << textWidth << std::endl;
-        std::cout << "textHeight: " << textHeight << std::endl;
-
-
         float y = (SCREEN_HEIGHT / 2) - (textHeight / 2);
-        std::cout << "SCREEN_HEIGHT / 2: " << (SCREEN_HEIGHT / 2) << std::endl;
-
         float scale = 1.0f;
 
         for (char c : text)
