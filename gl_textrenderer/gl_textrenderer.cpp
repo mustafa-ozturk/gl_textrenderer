@@ -191,16 +191,8 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
         glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200/255.0, 60/255.0, 30/255.0);
         glBindVertexArray(VAO_chars);
 
-        float xpos;
-        // don't add bearinX for first char
-        if (charCount == 0)
-        {
-            xpos = x * scale;
-        }
-        else
-        {
-            xpos = x + ch.Bearing.x * scale;
-        }
+        // TODO: remove first bearingX
+        float xpos = x + ch.Bearing.x * scale;;
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
 
