@@ -1,6 +1,6 @@
 #include "gl_textrenderer.h"
 
-gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string& font_path)
+gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path)
     : m_screen_width(screen_width),
       m_screen_height(screen_height),
       m_font_path(font_path),
@@ -241,5 +241,10 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
 
         charCount++;
     }
+}
+
+gl_textrenderer::~gl_textrenderer()
+{
+
 }
 

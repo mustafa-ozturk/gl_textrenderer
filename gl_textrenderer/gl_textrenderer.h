@@ -19,7 +19,7 @@ using namespace gl;
 class gl_textrenderer
 {
 public:
-    gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string& font_path);
+    gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path);
     ~gl_textrenderer();
 
     void render_text(std::string text, float x, float y, float scale);
