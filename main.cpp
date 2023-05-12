@@ -200,6 +200,7 @@ int main()
     // projection
     {
         glm::mat4 projection = glm::ortho(0.0f, (float) SCREEN_WIDTH, 0.0f, (float) SCREEN_HEIGHT);
+        // TODO: should be done during rendering
         glUseProgram(charShaderProgram);
         glUniformMatrix4fv(glGetUniformLocation(charShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     }
