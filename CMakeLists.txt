@@ -9,7 +9,9 @@ include_directories(vendor/freetype-2.12.0/include)
 
 add_executable(${PROJECT_NAME}
         main.cpp
-        include/gl_gridlines/gl_gridlines.cpp)
+        include/gl_gridlines/gl_gridlines.cpp
+        gl_textrenderer/gl_textrenderer.cpp
+)
 
 find_package ( glfw3 REQUIRED )
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw )
