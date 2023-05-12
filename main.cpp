@@ -37,10 +37,6 @@ int main()
 
     glbinding::initialize(glfwGetProcAddress);
 
-    // enable blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     gl_gridlines gridlines(SCREEN_WIDTH, SCREEN_HEIGHT, 50, {1.0f, 1.0f, 1.0f, 0.1f});
     gl_textrenderer textrenderer(SCREEN_WIDTH, SCREEN_HEIGHT, "assets/Ubuntu-R.ttf");
     while (!glfwWindowShouldClose(window))
@@ -48,7 +44,6 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-//        glDisable(GL_BLEND);
         textrenderer.render_text("hello world", 100, 100, 1);
         gridlines.draw();
 

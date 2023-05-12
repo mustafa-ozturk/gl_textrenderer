@@ -169,6 +169,8 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
 //        textWidth += ch.Advance >> 6;
 //        count++;
 //    }
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     int charCount = 0;
     for (char c : text)
