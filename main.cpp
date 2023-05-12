@@ -213,24 +213,26 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
 //        glDisable(GL_BLEND);
-        std::string text = "postgres";
-        int textWidth = 0;
-        int textHeight = 0;
-        int count = 0;
-        for (char c : text)
-        {
-            Character ch = Characters[c];
-            // pick the biggest height in the text
-            if (ch.Size.y > textHeight)
-            {
-                textHeight = ch.Size.y;
-            }
-            textWidth += ch.Advance >> 6;
-            count++;
-        }
+        std::string text = "hello world";
+//        int textWidth = 0;
+//        int textHeight = 0;
+//        int count = 0;
+//        for (char c : text)
+//        {
+//            Character ch = Characters[c];
+//            // pick the biggest height in the text
+//            if (ch.Size.y > textHeight)
+//            {
+//                textHeight = ch.Size.y;
+//            }
+//            textWidth += ch.Advance >> 6;
+//            count++;
+//        }
 
-        float x = (SCREEN_WIDTH / 2) - (textWidth / 2);
-        float y = (SCREEN_HEIGHT / 2) - (textHeight / 2);
+//        float x = (SCREEN_WIDTH / 2) - (textWidth / 2);
+//        float y = (SCREEN_HEIGHT / 2) - (textHeight / 2);
+        float x = 100;
+        float y = 100;
         float scale = 1.0f;
 
         int charCount = 0;
@@ -253,7 +255,16 @@ int main()
             glUniform3f(glGetUniformLocation(charShaderProgram, "textColor"), 200/255.0, 60/255.0, 30/255.0);
             glBindVertexArray(VAO_chars);
 
-            float xpos = xpos = x + ch.Bearing.x * scale;
+            float xpos;
+            // don't add bearinX for first char
+            if (charCount == 0)
+            {
+                xpos = x * scale;
+            }
+            else
+            {
+                xpos = x + ch.Bearing.x * scale;
+            }
             float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
 
