@@ -2,15 +2,8 @@
 #include <glbinding/glbinding.h>
 #include <glbinding/gl/gl.h>
 
-#include <glm/glm.hpp>
-#include "glm/gtc/matrix_transform.hpp"
-#include <glm/gtc/type_ptr.hpp>
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
-#include <iostream>
-#include <map>
 
 #include "gl_gridlines/gl_gridlines.h"
 #include "gl_textrenderer/gl_textrenderer.h"
