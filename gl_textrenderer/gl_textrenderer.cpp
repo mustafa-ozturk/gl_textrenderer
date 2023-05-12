@@ -34,7 +34,7 @@ gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_
         }
     )";
 
-    m_shader_program = create_shaders(vertex_shader, fragment_shader);
+    m_shader_program = create_shader_program(vertex_shader, fragment_shader);
 }
 
 void gl_textrenderer::load_ascii_characters()
