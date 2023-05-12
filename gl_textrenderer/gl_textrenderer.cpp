@@ -3,7 +3,8 @@
 gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string& font_path)
     : m_screen_width(screen_width),
       m_screen_height(screen_height),
-      m_font_path(font_path)
+      m_font_path(font_path),
+      m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height))
 {
     std::string vertex_shader = R"(
         #version 330 core
@@ -35,6 +36,7 @@ gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_
     )";
 
     m_shader_program = create_shader_program(vertex_shader, fragment_shader);
+    load_ascii_characters();
 }
 
 void gl_textrenderer::load_ascii_characters()
@@ -148,5 +150,80 @@ unsigned int gl_textrenderer::create_shader_program(std::string& vertex_src, std
     glDeleteShader(fragmentShader);
 
     return shaderProgram;
+}
+
+void gl_textrenderer::render_text(std::string text, float x, float y, float scale)
+{
+    int charCount = 0;
+    for (char c : text)
+    {
+        unsigned int VBO_chars, VAO_chars;
+
+        glGenVertexArrays(1, &VAO_chars);
+        glBindVertexArray(VAO_chars);
+        glGenBuffers(1, &VBO_chars);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+        // reserve memory, later we will update the VBO's memory when rendering characters
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+        m_character ch = m_characters[c];
+
+        glUseProgram(m_shader_program);
+        glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
+        glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200/255.0, 60/255.0, 30/255.0);
+        glBindVertexArray(VAO_chars);
+
+        float xpos;
+        // don't add bearinX for first char
+        if (charCount == 0)
+        {
+            xpos = x * scale;
+        }
+        else
+        {
+            xpos = x + ch.Bearing.x * scale;
+        }
+        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+
+        float width = ch.Size.x * scale;
+        float height = ch.Size.y * scale;
+        /*
+         * C      D ypos + height,
+         *
+         * A      B
+         *   xpos + width
+         * FREETYPE GLYPHS ARE REVERSED: 0,0  = top left
+         * */
+        // update VBO for each character
+        float char_vertices[6][4] = { // x,y,tx,ty
+                // first triangle
+                {xpos,     ypos + height,     0.0f, 0.0f}, // C
+                {xpos, ypos,                  0.0f, 1.0f}, // A
+                {xpos + width, ypos,          1.0f, 1.0f}, // B
+
+                // second triangle
+                {xpos,     ypos + height,     0.0f, 0.0f}, // C
+                {xpos + width, ypos,          1.0f, 1.0f}, // B
+                {xpos + width, ypos + height, 1.0f, 0.0f}  // D
+        };
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(char_vertices), char_vertices);
+
+        // render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        x += (ch.Advance >> 6);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
+
+        charCount++;
+    }
 }
 

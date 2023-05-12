@@ -22,7 +22,7 @@ public:
     gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string& font_path);
     ~gl_textrenderer();
 
-    void render_text();
+    void render_text(std::string text, float x, float y, float scale);
 private:
     struct m_character {
         unsigned int TextureID;  // opengl texture ID of the glyph
@@ -35,14 +35,12 @@ private:
     };
     void load_ascii_characters();
     unsigned int create_shader_program(std::string& vertex_src, std::string& fragment_src);
+
     unsigned int m_screen_width;
     unsigned int m_screen_height;
     std::string m_font_path;
-    std::map<char, m_character> m_characters;
     glm::mat4 m_projection;
-    float m_x;
-    float m_y;
-    float m_scale;
+    std::map<char, m_character> m_characters;
 
     unsigned int m_shader_program;
 };
