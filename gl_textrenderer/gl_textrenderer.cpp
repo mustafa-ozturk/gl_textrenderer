@@ -154,6 +154,22 @@ unsigned int gl_textrenderer::create_shader_program(std::string& vertex_src, std
 
 void gl_textrenderer::render_text(std::string text, float x, float y, float scale)
 {
+//    centering code not sure how it will be part of API yet
+//    int textWidth = 0;
+//    int textHeight = 0;
+//    int count = 0;
+//    for (char c : text)
+//    {
+//        Character ch = Characters[c];
+//        // pick the biggest height in the text
+//        if (ch.Size.y > textHeight)
+//        {
+//            textHeight = ch.Size.y;
+//        }
+//        textWidth += ch.Advance >> 6;
+//        count++;
+//    }
+
     int charCount = 0;
     for (char c : text)
     {
