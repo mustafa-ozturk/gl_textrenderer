@@ -34,7 +34,7 @@ private:
         unsigned int Advance;    // Offset to advance to next glyph
     };
     void load_ascii_characters();
-    unsigned int create_shaders(std::string& vertex_src, std::string& fragment_src);
+    unsigned int create_shader_program(std::string& vertex_src, std::string& fragment_src);
     unsigned int m_screen_width;
     unsigned int m_screen_height;
     std::string m_font_path;
