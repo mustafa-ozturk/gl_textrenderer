@@ -4,11 +4,11 @@ textrenderer that uses freetype
 
 blending enabled:
 
-![screenshot_4.png](screenshot_5.png)
+![screenshot_4.png](screenshot_4.png)
 
 blending disabled:
 
-![screenshot_5.png](screenshot_4.png)
+![screenshot_5.png](screenshot_5.png)
 
 dependencies:
  - freetype
