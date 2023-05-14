@@ -16,9 +16,10 @@
 //        count++;
 //    }
 
-gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path, int pixel_height)
+gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path, int pixel_height, std::array<float, 4> colors)
         : m_font_path(font_path),
-          m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height))
+          m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height)),
+          m_colors(colors)
 {
     std::string vertex_shader = R"(
         #version 330 core
@@ -73,7 +74,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
 
     glUseProgram(m_shader_program);
     glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
-    glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200 / 255.0, 60 / 255.0, 30 / 255.0);
+    glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), m_colors[0], m_colors[1], m_colors[2]);
 
     int first_bearing_x = 0;
     for (char c: text)
