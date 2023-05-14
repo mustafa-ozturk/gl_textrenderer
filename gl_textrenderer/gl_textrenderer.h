@@ -17,7 +17,7 @@ using namespace gl;
 class gl_textrenderer
 {
 public:
-    gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path);
+    gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path, int pixel_height);
     ~gl_textrenderer();
 
     void render_text(std::string text, float x, float y, float scale);
@@ -31,7 +31,7 @@ private:
         // horizontal distance in 1/64th pixels from the origin to the next origin
         unsigned int Advance;    // Offset to advance to next glyph
     };
-    void load_ascii_characters();
+    void load_ascii_characters(int pixel_height);
     unsigned int create_shader_program(std::string& vertex_src, std::string& fragment_src);
 
     std::string m_font_path;

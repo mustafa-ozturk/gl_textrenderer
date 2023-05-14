@@ -16,7 +16,7 @@
 //        count++;
 //    }
 
-gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path)
+gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path, int pixel_height)
         : m_font_path(font_path),
           m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height))
 {
@@ -52,7 +52,7 @@ gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_
     )";
 
     m_shader_program = create_shader_program(vertex_shader, fragment_shader);
-    load_ascii_characters();
+    load_ascii_characters(pixel_height);
 }
 
 gl_textrenderer::~gl_textrenderer()
@@ -143,7 +143,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
     glUseProgram(0);
 }
 
-void gl_textrenderer::load_ascii_characters()
+void gl_textrenderer::load_ascii_characters(int pixel_height)
 {
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
@@ -160,7 +160,7 @@ void gl_textrenderer::load_ascii_characters()
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 50);
+    FT_Set_Pixel_Sizes(face, 0, pixel_height);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

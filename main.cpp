@@ -30,14 +30,14 @@ int main()
 
     glbinding::initialize(glfwGetProcAddress);
 
-    gl_gridlines gridlines(SCREEN_WIDTH, SCREEN_HEIGHT, 50, {1.0f, 1.0f, 1.0f, 0.1f});
-    gl_textrenderer textrenderer(SCREEN_WIDTH, SCREEN_HEIGHT, "assets/Ubuntu-R.ttf");
+    gl_gridlines gridlines(SCREEN_WIDTH, SCREEN_HEIGHT, 13, {1.0f, 1.0f, 1.0f, 0.1f});
+    gl_textrenderer textrenderer(SCREEN_WIDTH, SCREEN_HEIGHT, "assets/Ubuntu-R.ttf", 13);
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        textrenderer.render_text("hello world", 100, 100, 1);
+        textrenderer.render_text("hello world", 0, 0, 1);
         gridlines.draw();
 
         glfwSwapBuffers(window);
