@@ -16,7 +16,8 @@
 //        count++;
 //    }
 
-gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path, int pixel_height, std::array<float, 4> colors)
+gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path,
+                                 int pixel_height, std::array<float, 4> colors)
         : m_font_path(font_path),
           m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height)),
           m_colors(colors)
@@ -116,13 +117,13 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
          * FREETYPE GLYPHS ARE REVERSED: 0,0  = top left
          * */
         std::vector<float> verticies = {
-                xpos,           ypos,           0.0f, 1.0f, // A
-                xpos + width,   ypos,           1.0f, 1.0f, // B
-                xpos,           ypos + height,  0.0f, 0.0f, // C
+                xpos, ypos, 0.0f, 1.0f, // A
+                xpos + width, ypos, 1.0f, 1.0f, // B
+                xpos, ypos + height, 0.0f, 0.0f, // C
 
-                xpos + width,   ypos,           1.0f, 1.0f, // B
-                xpos,           ypos + height,  0.0f, 0.0f, // C
-                xpos + width,   ypos + height,  1.0f, 0.0f  // D
+                xpos + width, ypos, 1.0f, 1.0f, // B
+                xpos, ypos + height, 0.0f, 0.0f, // C
+                xpos + width, ypos + height, 1.0f, 0.0f  // D
         };
 
         // FIXME: very inefficient
