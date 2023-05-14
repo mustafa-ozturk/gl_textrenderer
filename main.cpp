@@ -37,14 +37,16 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
-        textrenderer.render_text("main( ) {", 10, SCREEN_HEIGHT - 20);
-        textrenderer.render_text("extern a, b, c;", 20, SCREEN_HEIGHT - 40);
-        textrenderer.render_text("putchar(a); putchar(b); putchar(c); putchar('!*n');", 20, SCREEN_HEIGHT - 60);
-        textrenderer.render_text("}", 10, SCREEN_HEIGHT - 80);
-        textrenderer.render_text("a 'hell';", 10, SCREEN_HEIGHT - 100);
-        textrenderer.render_text("b 'o, w';", 10, SCREEN_HEIGHT - 120);
-        textrenderer.render_text("c 'orld';", 10, SCREEN_HEIGHT - 140);
+        // render text
+        {
+            textrenderer.render_text("main( ) {", 10, SCREEN_HEIGHT - 20);
+            textrenderer.render_text("extern a, b, c;", 20, SCREEN_HEIGHT - 40);
+            textrenderer.render_text("putchar(a); putchar(b); putchar(c); putchar('!*n');", 20, SCREEN_HEIGHT - 60);
+            textrenderer.render_text("}", 10, SCREEN_HEIGHT - 80);
+            textrenderer.render_text("a 'hell';", 10, SCREEN_HEIGHT - 100);
+            textrenderer.render_text("b 'o, w';", 10, SCREEN_HEIGHT - 120);
+            textrenderer.render_text("c 'orld';", 10, SCREEN_HEIGHT - 140);
+        }
 
         gridlines.draw();
 
