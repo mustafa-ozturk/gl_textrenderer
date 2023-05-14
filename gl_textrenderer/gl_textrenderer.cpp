@@ -70,14 +70,30 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
     glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
     glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200/255.0, 60/255.0, 30/255.0);
 
-    int charCount = 0;
+    int first_bearing_x = 0;
     for (char c : text)
     {
         m_character ch = m_characters[c];
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 
-        // TODO: remove first bearingX
+        /*
+         * This removes the bearingX of the first character,
+         * substracts the length of the first bearingX
+         * from the bearingX of all other characters,
+         * Allowing for text to be rendered exactly
+         * at the given x position.
+         * */
+        if (first_bearing_x == 0)
+        {
+            first_bearing_x = ch.Bearing.x;
+            ch.Bearing.x = 0;
+        }
+        else
+        {
+            ch.Bearing.x -= first_bearing_x;
+        }
+
         float xpos = x + ch.Bearing.x * scale;;
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
         float width = ch.Size.x * scale;
@@ -120,7 +136,6 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         x += (ch.Advance >> 6);
-        charCount++;
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
