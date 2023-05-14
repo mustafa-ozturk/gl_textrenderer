@@ -1,6 +1,6 @@
 #include "gl_textrenderer.h"
 
-//    centering code not sure how it will be part of API yet
+//    example centering text for future ref
 //    int textWidth = 0;
 //    int textHeight = 0;
 //    int count = 0;
