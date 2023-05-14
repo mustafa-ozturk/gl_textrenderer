@@ -14,8 +14,6 @@
 
 using namespace gl;
 
-
-
 class gl_textrenderer
 {
 public:

@@ -17,8 +17,8 @@
 //    }
 
 gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path)
-    : m_font_path(font_path),
-      m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height))
+        : m_font_path(font_path),
+          m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height))
 {
     std::string vertex_shader = R"(
         #version 330 core
@@ -68,10 +68,10 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
 
     glUseProgram(m_shader_program);
     glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
-    glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200/255.0, 60/255.0, 30/255.0);
+    glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200 / 255.0, 60 / 255.0, 30 / 255.0);
 
     int first_bearing_x = 0;
-    for (char c : text)
+    for (char c: text)
     {
         m_character ch = m_characters[c];
         glActiveTexture(GL_TEXTURE0);
@@ -88,8 +88,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
         {
             first_bearing_x = ch.Bearing.x;
             ch.Bearing.x = 0;
-        }
-        else
+        } else
         {
             ch.Bearing.x -= first_bearing_x;
         }
@@ -108,13 +107,13 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
          * */
         // update VBO for each character
         std::vector<float> verticies = {
-                xpos,           ypos,               0.0f, 1.0f, // A
-                xpos + width,   ypos,               1.0f, 1.0f, // B
-                xpos,           ypos + height,      0.0f, 0.0f, // C
+                xpos, ypos, 0.0f, 1.0f, // A
+                xpos + width, ypos, 1.0f, 1.0f, // B
+                xpos, ypos + height, 0.0f, 0.0f, // C
 
-                xpos + width,   ypos,               1.0f, 1.0f, // B
-                xpos,           ypos + height,      0.0f, 0.0f, // C
-                xpos + width,   ypos + height,      1.0f, 0.0f  // D
+                xpos + width, ypos, 1.0f, 1.0f, // B
+                xpos, ypos + height, 0.0f, 0.0f, // C
+                xpos + width, ypos + height, 1.0f, 0.0f  // D
         };
 
         // FIXME: very inefficient
