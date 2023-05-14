@@ -93,27 +93,30 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
             ch.Bearing.x -= first_bearing_x;
         }
 
-        float xpos = x + ch.Bearing.x * scale;;
+        // xpos is given x + the characters bearingX
+        float xpos = x + ch.Bearing.x * scale;
+        // ypos is given y - (character height - bearingY),
+        // this slightly pushes characters like 'p' under the given y (which we treat as the baseline)
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
         float width = ch.Size.x * scale;
         float height = ch.Size.y * scale;
 
         /*
-         * C      D ypos + height,
+         * C      D ---- ypos + height,
          *
          * A      B
+         *        |
          *   xpos + width
          * FREETYPE GLYPHS ARE REVERSED: 0,0  = top left
          * */
-        // update VBO for each character
         std::vector<float> verticies = {
-                xpos, ypos, 0.0f, 1.0f, // A
-                xpos + width, ypos, 1.0f, 1.0f, // B
-                xpos, ypos + height, 0.0f, 0.0f, // C
+                xpos,           ypos,           0.0f, 1.0f, // A
+                xpos + width,   ypos,           1.0f, 1.0f, // B
+                xpos,           ypos + height,  0.0f, 0.0f, // C
 
-                xpos + width, ypos, 1.0f, 1.0f, // B
-                xpos, ypos + height, 0.0f, 0.0f, // C
-                xpos + width, ypos + height, 1.0f, 0.0f  // D
+                xpos + width,   ypos,           1.0f, 1.0f, // B
+                xpos,           ypos + height,  0.0f, 0.0f, // C
+                xpos + width,   ypos + height,  1.0f, 0.0f  // D
         };
 
         // FIXME: very inefficient
