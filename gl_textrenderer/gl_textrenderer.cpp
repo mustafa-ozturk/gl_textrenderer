@@ -24,15 +24,17 @@ gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_
 {
     std::string vertex_shader = R"(
         #version 330 core
-        layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
+        layout (location = 0) in vec2 position;
+        layout (location = 1) in vec4 texture_coordinates;
+
         out vec2 TexCoords;
 
         uniform mat4 projection;
 
         void main()
         {
-            gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
-            TexCoords = vertex.zw;
+            gl_Position = projection * vec4(position.xy, 0.0, 1.0);
+            TexCoords = texture_coordinates.xy;
         }
     )";
 
@@ -66,32 +68,21 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glUseProgram(m_shader_program);
+    glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
+    glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200/255.0, 60/255.0, 30/255.0);
+
+
     int charCount = 0;
     for (char c : text)
     {
-        unsigned int VBO_chars, VAO_chars;
-
-        glGenVertexArrays(1, &VAO_chars);
-        glBindVertexArray(VAO_chars);
-        glGenBuffers(1, &VBO_chars);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-        // reserve memory, later we will update the VBO's memory when rendering characters
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-
         m_character ch = m_characters[c];
-
-        glUseProgram(m_shader_program);
-        glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
-        glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200/255.0, 60/255.0, 30/255.0);
-        glBindVertexArray(VAO_chars);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 
         // TODO: remove first bearingX
         float xpos = x + ch.Bearing.x * scale;;
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-
         float width = ch.Size.x * scale;
         float height = ch.Size.y * scale;
         /*
@@ -102,33 +93,41 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
          * FREETYPE GLYPHS ARE REVERSED: 0,0  = top left
          * */
         // update VBO for each character
-        float char_vertices[6][4] = { // x,y,tx,ty
-                // first triangle
-                {xpos,     ypos + height,     0.0f, 0.0f}, // C
-                {xpos, ypos,                  0.0f, 1.0f}, // A
-                {xpos + width, ypos,          1.0f, 1.0f}, // B
+        std::vector<float> verticies = {
+                xpos,           ypos,               0.0f, 1.0f, // A
+                xpos + width,   ypos,               1.0f, 1.0f, // B
+                xpos,           ypos + height,      0.0f, 0.0f, // C
 
-                // second triangle
-                {xpos,     ypos + height,     0.0f, 0.0f}, // C
-                {xpos + width, ypos,          1.0f, 1.0f}, // B
-                {xpos + width, ypos + height, 1.0f, 0.0f}  // D
+                xpos + width,   ypos,               1.0f, 1.0f, // B
+                xpos,           ypos + height,      0.0f, 0.0f, // C
+                xpos + width,   ypos + height,      1.0f, 0.0f  // D
         };
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+
+        unsigned int VAO_chars;
+        glGenVertexArrays(1, &VAO_chars);
+        glBindVertexArray(VAO_chars);
+        unsigned int VBO_chars;
+        glGenBuffers(1, &VBO_chars);
         glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(char_vertices), char_vertices);
+        glBufferData(GL_ARRAY_BUFFER, verticies.size() * sizeof(float), verticies.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*) (2 * sizeof(float)));
 
         // render quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
+
         x += (ch.Advance >> 6);
+        charCount++;
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
-        glUseProgram(0);
-
-        charCount++;
     }
+    glUseProgram(0);
 }
 
 void gl_textrenderer::load_ascii_characters()
