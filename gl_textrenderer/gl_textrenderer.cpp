@@ -70,7 +70,6 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
     glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
     glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), 200/255.0, 60/255.0, 30/255.0);
 
-
     int charCount = 0;
     for (char c : text)
     {
@@ -83,6 +82,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
         float width = ch.Size.x * scale;
         float height = ch.Size.y * scale;
+
         /*
          * C      D ypos + height,
          *
@@ -101,6 +101,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
                 xpos + width,   ypos + height,      1.0f, 0.0f  // D
         };
 
+        // FIXME: very inefficient
         unsigned int VAO_chars;
         glGenVertexArrays(1, &VAO_chars);
         glBindVertexArray(VAO_chars);
