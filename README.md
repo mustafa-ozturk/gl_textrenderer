@@ -2,13 +2,7 @@
 
 basic freetype/opengl text renderer
 
-blending enabled:
-
-![screenshot_4.png](screenshots/screenshot_4.png)
-
-blending disabled:
-
-![screenshot_5.png](screenshots/screenshot_5.png)
+![screenshot_6.png](screenshots/screenshot_6.png)
 
 dependencies:
  - freetype
