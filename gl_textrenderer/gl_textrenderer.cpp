@@ -57,7 +57,7 @@ gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_
 
 gl_textrenderer::~gl_textrenderer()
 {
-
+    glDeleteProgram(m_shader_program);
 }
 
 
