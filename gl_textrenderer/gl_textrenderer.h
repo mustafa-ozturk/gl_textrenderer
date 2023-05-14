@@ -36,8 +36,6 @@ private:
     void load_ascii_characters();
     unsigned int create_shader_program(std::string& vertex_src, std::string& fragment_src);
 
-    unsigned int m_screen_width;
-    unsigned int m_screen_height;
     std::string m_font_path;
     glm::mat4 m_projection;
     std::map<char, m_character> m_characters;

@@ -17,9 +17,7 @@
 //    }
 
 gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path)
-    : m_screen_width(screen_width),
-      m_screen_height(screen_height),
-      m_font_path(font_path),
+    : m_font_path(font_path),
       m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height))
 {
     std::string vertex_shader = R"(
