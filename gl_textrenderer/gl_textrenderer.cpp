@@ -61,7 +61,7 @@ gl_textrenderer::~gl_textrenderer()
 }
 
 
-void gl_textrenderer::render_text(std::string text, float x, float y, float scale)
+void gl_textrenderer::render_text(std::string text, float x, float y)
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -94,12 +94,12 @@ void gl_textrenderer::render_text(std::string text, float x, float y, float scal
         }
 
         // xpos is given x + the characters bearingX
-        float xpos = x + ch.Bearing.x * scale;
+        float xpos = x + ch.Bearing.x;
         // ypos is given y - (character height - bearingY),
         // this slightly pushes characters like 'p' under the given y (which we treat as the baseline)
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-        float width = ch.Size.x * scale;
-        float height = ch.Size.y * scale;
+        float ypos = y - (ch.Size.y - ch.Bearing.y);
+        float width = ch.Size.x;
+        float height = ch.Size.y;
 
         /*
          * C      D ---- ypos + height,

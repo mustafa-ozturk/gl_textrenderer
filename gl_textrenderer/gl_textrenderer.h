@@ -20,7 +20,7 @@ public:
     gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path, int pixel_height);
     ~gl_textrenderer();
 
-    void render_text(std::string text, float x, float y, float scale);
+    void render_text(std::string text, float x, float y);
 private:
     struct m_character {
         unsigned int TextureID;  // opengl texture ID of the glyph

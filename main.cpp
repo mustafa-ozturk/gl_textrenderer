@@ -37,7 +37,7 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        textrenderer.render_text("hello world", 0, 0, 1);
+        textrenderer.render_text("hello world", 0, 0);
         gridlines.draw();
 
         glfwSwapBuffers(window);
