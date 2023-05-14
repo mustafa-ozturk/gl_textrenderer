@@ -1,6 +1,6 @@
 # gl_textrenderer
 
-textrenderer that uses freetype
+basic freetype/opengl text renderer
 
 blending enabled:
 
