@@ -148,6 +148,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
 
 void gl_textrenderer::load_ascii_characters(int pixel_height)
 {
+    // initialize freetype
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
     {
@@ -155,7 +156,7 @@ void gl_textrenderer::load_ascii_characters(int pixel_height)
         return;
     }
 
-    // face == font
+    // load the font
     FT_Face face;
     if (FT_New_Face(ft, m_font_path.c_str(), 0, &face))
     {
@@ -163,6 +164,7 @@ void gl_textrenderer::load_ascii_characters(int pixel_height)
         return;
     }
 
+    // set the pixel size
     FT_Set_Pixel_Sizes(face, 0, pixel_height);
 
     // disable byte-alignment restriction
@@ -171,7 +173,7 @@ void gl_textrenderer::load_ascii_characters(int pixel_height)
     // load first 128 characters of ASCII set
     for (unsigned char c = 0; c < 128; c++)
     {
-        // Load character glyph
+        // Load ascii character with char code 0
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
             std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
@@ -197,7 +199,7 @@ void gl_textrenderer::load_ascii_characters(int pixel_height)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        // now store character for later use
+        // store character in a map for later use
         m_character character = {
                 texture,
                 glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
