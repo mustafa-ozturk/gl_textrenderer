@@ -108,6 +108,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
         float width = ch.Size.x;
         float height = ch.Size.y;
 
+        // TODO: add EBO
         /*
          * C      D ---- ypos + height,
          *
