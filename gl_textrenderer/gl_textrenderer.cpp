@@ -124,28 +124,28 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
         verticies.push_back(v1);
 
         m_vertex v2 = {};
-        v1.position = {xpos + width, ypos};
-        v1.texture_coordinates =  {1.0f, 1.0f};
+        v2.position = {xpos + width, ypos};
+        v2.texture_coordinates =  {1.0f, 1.0f};
         verticies.push_back(v2);
 
         m_vertex v3 = {};
-        v1.position = {xpos, ypos + height};
-        v1.texture_coordinates =  {0.0f, 0.0f};
+        v3.position = {xpos, ypos + height};
+        v3.texture_coordinates =  {0.0f, 0.0f};
         verticies.push_back(v3);
 
         m_vertex v4 = {};
-        v1.position = {xpos + width, ypos};
-        v1.texture_coordinates =  {1.0f, 1.0f};
+        v4.position = {xpos + width, ypos};
+        v4.texture_coordinates =  {1.0f, 1.0f};
         verticies.push_back(v4);
 
         m_vertex v5 = {};
-        v1.position = {xpos, ypos + height};
-        v1.texture_coordinates =  {0.0f, 0.0f};
+        v5.position = {xpos, ypos + height};
+        v5.texture_coordinates =  {0.0f, 0.0f};
         verticies.push_back(v5);
 
         m_vertex v6 = {};
-        v1.position = {xpos + width, ypos + height};
-        v1.texture_coordinates =  {1.0f, 0.0f};
+        v6.position = {xpos + width, ypos + height};
+        v6.texture_coordinates =  {1.0f, 0.0f};
         verticies.push_back(v6);
 
 
