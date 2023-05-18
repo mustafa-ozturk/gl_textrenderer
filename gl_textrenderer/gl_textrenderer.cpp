@@ -159,10 +159,10 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
         glBufferData(GL_ARRAY_BUFFER, verticies.size() * sizeof(float), verticies.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), 0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (const void*)offsetof(m_vertex, position));
 
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (void*) (2 * sizeof(float)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (const void*)offsetof(m_vertex, texture_coordinates));
 
         // render quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
