@@ -156,7 +156,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
         unsigned int VBO_chars;
         glGenBuffers(1, &VBO_chars);
         glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
-        glBufferData(GL_ARRAY_BUFFER, verticies.size() * sizeof(float), verticies.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, verticies.size() * sizeof(m_vertex), verticies.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (const void*)offsetof(m_vertex, position));
