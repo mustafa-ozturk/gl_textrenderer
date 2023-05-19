@@ -116,7 +116,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
          *   xpos + width
          * FREETYPE GLYPHS ARE REVERSED: 0,0  = top left
          * */
-        std::vector<m_vertex> verticies = {};
+        std::vector<m_vertex> vertices = {};
         std::vector<unsigned int> indices = {
                 0, 1, 2, // first triangle
                 1, 2, 3  // second triangle
@@ -125,22 +125,22 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
         m_vertex v0 = {};
         v0.position = {xpos, ypos};
         v0.texture_coordinates =  {0.0f, 1.0f};
-        verticies.push_back(v0);
+        vertices.push_back(v0);
 
         m_vertex v1 = {};
         v1.position = {xpos + width, ypos};
         v1.texture_coordinates =  {1.0f, 1.0f};
-        verticies.push_back(v1);
+        vertices.push_back(v1);
 
         m_vertex v2 = {};
         v2.position = {xpos, ypos + height};
         v2.texture_coordinates =  {0.0f, 0.0f};
-        verticies.push_back(v2);
+        vertices.push_back(v2);
 
         m_vertex v3 = {};
         v3.position = {xpos + width, ypos + height};
         v3.texture_coordinates =  {1.0f, 0.0f};
-        verticies.push_back(v3);
+        vertices.push_back(v3);
 
         unsigned int VAO, VBO, EBO;
 
@@ -149,7 +149,7 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
 
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, verticies.size() * sizeof(m_vertex), verticies.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(m_vertex), vertices.data(), GL_STATIC_DRAW);
 
         glGenBuffers(1, &EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
