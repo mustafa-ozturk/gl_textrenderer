@@ -67,7 +67,7 @@ gl_textrenderer::~gl_textrenderer()
     glDeleteProgram(m_shader_program);
 }
 
-
+// FIXME: very inefficient
 void gl_textrenderer::render_text(std::string text, float x, float y)
 {
     glEnable(GL_BLEND);
@@ -108,56 +108,52 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
         float width = ch.Size.x;
         float height = ch.Size.y;
 
-        // TODO: add EBO
         /*
-         * C      D ---- ypos + height,
+         * 2      3 ---- ypos + height,
          *
-         * A      B
+         * 0      1
          *        |
          *   xpos + width
          * FREETYPE GLYPHS ARE REVERSED: 0,0  = top left
          * */
         std::vector<m_vertex> verticies = {};
+        std::vector<unsigned int> indices = {
+                0, 1, 2, // first triangle
+                1, 2, 3  // second triangle
+        };
+
+        m_vertex v0 = {};
+        v0.position = {xpos, ypos};
+        v0.texture_coordinates =  {0.0f, 1.0f};
+        verticies.push_back(v0);
 
         m_vertex v1 = {};
-        v1.position = {xpos, ypos};
-        v1.texture_coordinates =  {0.0f, 1.0f};
+        v1.position = {xpos + width, ypos};
+        v1.texture_coordinates =  {1.0f, 1.0f};
         verticies.push_back(v1);
 
         m_vertex v2 = {};
-        v2.position = {xpos + width, ypos};
-        v2.texture_coordinates =  {1.0f, 1.0f};
+        v2.position = {xpos, ypos + height};
+        v2.texture_coordinates =  {0.0f, 0.0f};
         verticies.push_back(v2);
 
         m_vertex v3 = {};
-        v3.position = {xpos, ypos + height};
-        v3.texture_coordinates =  {0.0f, 0.0f};
+        v3.position = {xpos + width, ypos + height};
+        v3.texture_coordinates =  {1.0f, 0.0f};
         verticies.push_back(v3);
 
-        m_vertex v4 = {};
-        v4.position = {xpos + width, ypos};
-        v4.texture_coordinates =  {1.0f, 1.0f};
-        verticies.push_back(v4);
+        unsigned int VAO, VBO, EBO;
 
-        m_vertex v5 = {};
-        v5.position = {xpos, ypos + height};
-        v5.texture_coordinates =  {0.0f, 0.0f};
-        verticies.push_back(v5);
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
 
-        m_vertex v6 = {};
-        v6.position = {xpos + width, ypos + height};
-        v6.texture_coordinates =  {1.0f, 0.0f};
-        verticies.push_back(v6);
-
-
-        // FIXME: very inefficient
-        unsigned int VAO_chars;
-        glGenVertexArrays(1, &VAO_chars);
-        glBindVertexArray(VAO_chars);
-        unsigned int VBO_chars;
-        glGenBuffers(1, &VBO_chars);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO_chars);
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, verticies.size() * sizeof(m_vertex), verticies.data(), GL_STATIC_DRAW);
+
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (const void*)offsetof(m_vertex, position));
@@ -166,11 +162,12 @@ void gl_textrenderer::render_text(std::string text, float x, float y)
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (const void*)offsetof(m_vertex, texture_coordinates));
 
         // render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 
         x += (ch.Advance >> 6);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
