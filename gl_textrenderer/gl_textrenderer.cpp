@@ -1,9 +1,12 @@
 #include "gl_textrenderer.h"
 
-gl_textrenderer::gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path,
+gl_textrenderer::gl_textrenderer(unsigned int screen_width,
+                                 unsigned int screen_height,
+                                 std::string font_path,
                                  int pixel_height)
         : m_font_path(font_path),
-          m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f, (float) screen_height))
+          m_projection(glm::ortho(0.0f, (float) screen_width, 0.0f,
+                                  (float) screen_height))
 {
     std::string vertex_shader = R"(
         #version 330 core
@@ -51,14 +54,17 @@ gl_textrenderer::~gl_textrenderer()
 }
 
 // FIXME: very inefficient
-void gl_textrenderer::render_text(std::string text, float x, float y, std::array<float, 3> rgb)
+void gl_textrenderer::render_text(std::string text, float x, float y,
+                                  std::array<float, 3> rgb)
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glUseProgram(m_shader_program);
-    glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(m_projection));
-    glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), rgb[0], rgb[1], rgb[2]);
+    glUniformMatrix4fv(glGetUniformLocation(m_shader_program, "projection"), 1,
+                       GL_FALSE, glm::value_ptr(m_projection));
+    glUniform3f(glGetUniformLocation(m_shader_program, "textColor"), rgb[0],
+                rgb[1], rgb[2]);
 
     int first_bearing_x = 0;
     for (char c: text)
@@ -107,22 +113,22 @@ void gl_textrenderer::render_text(std::string text, float x, float y, std::array
 
         m_vertex v0 = {};
         v0.position = {xpos, ypos};
-        v0.texture_coordinates =  {0.0f, 1.0f};
+        v0.texture_coordinates = {0.0f, 1.0f};
         vertices.push_back(v0);
 
         m_vertex v1 = {};
         v1.position = {xpos + width, ypos};
-        v1.texture_coordinates =  {1.0f, 1.0f};
+        v1.texture_coordinates = {1.0f, 1.0f};
         vertices.push_back(v1);
 
         m_vertex v2 = {};
         v2.position = {xpos, ypos + height};
-        v2.texture_coordinates =  {0.0f, 0.0f};
+        v2.texture_coordinates = {0.0f, 0.0f};
         vertices.push_back(v2);
 
         m_vertex v3 = {};
         v3.position = {xpos + width, ypos + height};
-        v3.texture_coordinates =  {1.0f, 0.0f};
+        v3.texture_coordinates = {1.0f, 0.0f};
         vertices.push_back(v3);
 
         unsigned int VAO, VBO, EBO;
@@ -132,17 +138,23 @@ void gl_textrenderer::render_text(std::string text, float x, float y, std::array
 
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(m_vertex), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(m_vertex),
+                     vertices.data(), GL_STATIC_DRAW);
 
         glGenBuffers(1, &EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     indices.size() * sizeof(unsigned int), indices.data(),
+                     GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (const void*)offsetof(m_vertex, position));
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex),
+                              (const void*) offsetof(m_vertex, position));
 
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex), (const void*)offsetof(m_vertex, texture_coordinates));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(m_vertex),
+                              (const void*) offsetof(m_vertex,
+                                                     texture_coordinates));
 
         // render quad
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -163,7 +175,8 @@ void gl_textrenderer::load_ascii_characters(int pixel_height)
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
     {
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library"
+                  << std::endl;
         return;
     }
 
@@ -239,7 +252,8 @@ void gl_textrenderer::load_ascii_characters(int pixel_height)
     FT_Done_FreeType(ft);
 }
 
-unsigned int gl_textrenderer::create_shader_program(std::string& vertex_src, std::string& fragment_src)
+unsigned int gl_textrenderer::create_shader_program(std::string& vertex_src,
+                                                    std::string& fragment_src)
 {
     // vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -253,7 +267,8 @@ unsigned int gl_textrenderer::create_shader_program(std::string& vertex_src, std
     if (!success)
     {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog
+                  << std::endl;
     }
     // fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -265,7 +280,8 @@ unsigned int gl_textrenderer::create_shader_program(std::string& vertex_src, std
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog
+                  << std::endl;
     }
     // link shaders
     unsigned int shaderProgram = glCreateProgram();
@@ -277,7 +293,8 @@ unsigned int gl_textrenderer::create_shader_program(std::string& vertex_src, std
     if (!success)
     {
         glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog
+                  << std::endl;
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -290,7 +307,7 @@ std::pair<int, int> gl_textrenderer::get_text_size(std::string text)
     int textWidth = 0;
     int textHeight = 0;
     int count = 0;
-    for (char c : text)
+    for (char c: text)
     {
         m_character ch = m_characters[c];
         // pick the biggest height in the text
