@@ -31,7 +31,7 @@ int main()
     glbinding::initialize(glfwGetProcAddress);
 
     gl_gridlines gridlines(SCREEN_WIDTH, SCREEN_HEIGHT, 10, {0.0f, 0.6f, 1.0f});
-    gl_textrenderer textrenderer(SCREEN_WIDTH, SCREEN_HEIGHT, "assets/Ubuntu-R.ttf", 13, {1.0f, 1.0f, 1.0f, 1.1f});
+    gl_textrenderer textrenderer(SCREEN_WIDTH, SCREEN_HEIGHT, "assets/Ubuntu-R.ttf", 13);
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
