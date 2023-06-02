@@ -18,11 +18,13 @@ using namespace gl;
 class gl_textrenderer
 {
 public:
-    gl_textrenderer(unsigned int screen_width, unsigned int screen_height, std::string font_path, int pixel_height);
+    gl_textrenderer(unsigned int screen_width, unsigned int screen_height,
+                    std::string font_path, int pixel_height);
 
     ~gl_textrenderer();
 
-    void render_text(std::string text, float x, float y, std::array<float, 3> rgb = {1.0f, 1.0f, 1.0f});
+    void render_text(std::string text, float x, float y,
+                     std::array<float, 3> rgb = {1.0f, 1.0f, 1.0f});
 
     std::pair<int, int> get_text_size(std::string text);
 
@@ -45,7 +47,8 @@ private:
 
     void load_ascii_characters(int pixel_height);
 
-    unsigned int create_shader_program(std::string& vertex_src, std::string& fragment_src);
+    unsigned int
+    create_shader_program(std::string& vertex_src, std::string& fragment_src);
 
     std::string m_font_path;
     glm::mat4 m_projection;
